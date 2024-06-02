@@ -1,39 +1,52 @@
 package com.ecommerce.usermanagement.model;
 
 import java.math.BigInteger;
+import java.util.Collection;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
-public class UserProfile {
+@Builder
+@Data
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserProfile  implements UserDetails{
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private BigInteger userId;
-	private String userName;
+	private String name;
 	private String userPhoneNumber;
 	private String userPassword;
-	public String getUserName() {
-		return userName;
+	
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		// TODO Auto-generated method stub
+		return null;
 	}
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-	public String getUserPhoneNumber() {
-		return userPhoneNumber;
-	}
-	public void setUserPhoneNumber(String userPhoneNumber) {
-		this.userPhoneNumber = userPhoneNumber;
-	}
-	public String getUserPassword() {
+	@Override
+	public String getPassword() {
+		// TODO Auto-generated method stub
 		return userPassword;
 	}
-	public void setUserPassword(String userPassword) {
-		this.userPassword = userPassword;
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return userPhoneNumber;
 	}
+	
 
 
 
