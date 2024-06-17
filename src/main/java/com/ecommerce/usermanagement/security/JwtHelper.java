@@ -1,11 +1,18 @@
 package com.ecommerce.usermanagement.security; 
 
 import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +40,11 @@ public class JwtHelper {
     //retrieve username from jwt token
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+        
+     }
+    
+    public Claims extractUserRole(String token) {
+        return getAllClaimsFromToken(token);
     }
 
     //retrieve expiration date from jwt token
@@ -47,7 +59,7 @@ public class JwtHelper {
 
     //for retrieveing any information from token we will need the secret key
     private Claims getAllClaimsFromToken(String token) {
-    	return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJwt(token).getBody();
+    	return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     			
     }
 
@@ -58,9 +70,9 @@ public class JwtHelper {
     }
 
     //generate token for user
-    public String generateToken(UserDetails userDetails) {
+	public String generateToken(Authentication authentication ) {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername());
+        return doGenerateToken(claims, authentication);
     }
 
     //while creating the token -
@@ -68,9 +80,11 @@ public class JwtHelper {
     //2. Sign the JWT using the HS512 algorithm and secret key.
     //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     //   compaction of the JWT to a URL-safe string
-    private String doGenerateToken(Map<String, Object> claims, String subject) {
+    private String doGenerateToken(Map<String, Object> claims, Authentication authentication) {
+    	String role=authentication.getAuthorities().stream()
+    			.map(r->r.getAuthority()).collect(Collectors.toSet()).iterator().next();
 
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder().claim("role",role).setSubject(authentication.getName()).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(key, SignatureAlgorithm.HS512).compact();
     }
@@ -81,5 +95,16 @@ public class JwtHelper {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public UsernamePasswordAuthenticationToken getAuthenticationToken(final String token, final Authentication existingAuth, final UserDetails userDetails) {
+
+        Claims claims = getAllClaimsFromToken(token);
+
+       final Collection<? extends GrantedAuthority> authorities =
+               Arrays.stream(claims.get("role").toString().split(","))
+                       .map(SimpleGrantedAuthority::new)
+                       .collect(Collectors.toList());
+
+       return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+   }
 
 }

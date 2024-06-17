@@ -1,61 +1,63 @@
 package com.ecommerce.usermanagement.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ecommerce.usermanagement.dto.LoginRequest;
 import com.ecommerce.usermanagement.dto.LoginResponse;
 import com.ecommerce.usermanagement.security.JwtHelper;
 
-@RestController
+@Controller
 @RequestMapping("/auth")
 public class UserLoginController {
 	
-	@Autowired
-	private UserDetailsService userDetailsService;
 	
-	
+		
 	@Autowired
     private AuthenticationManager manager;
 	
 	@Autowired
     private JwtHelper helper;
-    
+	
+	@GetMapping("/login")
+	public String login() {
+		return "login";
+	}
+	
+	
 
 
-	 @PostMapping("/login")
-	    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+	 @PostMapping("/loginprocess")
+	    public String login( LoginRequest request,RedirectAttributes redirect) {
 
-	        this.doAuthenticate(request.getUserPhoneNumber(),request.getUserPassword());
-
-
-	        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUserPhoneNumber());
-	        String token = this.helper.generateToken(userDetails);
+		 String token = this.helper.generateToken( this.doAuthenticate(request.getUserPhoneNumber(),request.getUserPassword()));
 
 	        LoginResponse response = LoginResponse.builder()
 	                .jwtToken(token)
-	                .userPhoneNumber(userDetails.getUsername())
 	                .build();
-	        return new ResponseEntity<>(response, HttpStatus.OK);
+	        if(token==null) {
+	        	redirect.addFlashAttribute("error","Login Failed");
+	        	return "redirect:/auth/login";
+	        }
+	        return "index";
+
 	    }
 
 	
-	private void doAuthenticate(String email, String password) {
+	private Authentication doAuthenticate(String userId, String password) {
 
-       UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
+       UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, password);
        try {
-           manager.authenticate(authentication);
+          return  manager.authenticate(authentication);
 
 
        } catch (BadCredentialsException e) {
@@ -65,8 +67,9 @@ public class UserLoginController {
    }
 
    @ExceptionHandler(BadCredentialsException.class)
-   public String exceptionHandler() {
-       return "Credentials Invalid !!";
+   public String exceptionHandler(RedirectAttributes redirect) {
+       redirect.addFlashAttribute("error","Credentials Invalid !!");
+       return "redirect:/auth/login";
    }
 	
 }

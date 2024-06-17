@@ -6,8 +6,8 @@ import com.ecommerce.usermanagement.model.UserImage;
 import com.ecommerce.usermanagement.model.UserProfile;
 
 @Service
-public interface UserRegService {
+public interface UserDataService {
 	
-	UserProfile usercreation(UserProfile userData,UserImage img) throws Exception;
+	public UserProfile saveUser(UserProfile user,UserImage img) ;
 
 }

@@ -14,6 +14,6 @@ import com.ecommerce.usermanagement.model.UserProfile;
 public interface UserProfileRepo extends JpaRepository<UserProfile, BigInteger> {
 	
 	@Query("SELECT n FROM UserProfile n WHERE n.userPhoneNumber=:userPhoneNumber")
-	Optional<UserProfile>findByNumber(@Param("userPhoneNumber")String userPhoneNumber);
+	UserProfile findByNumber(@Param("userPhoneNumber")String userPhoneNumber);
 
 }

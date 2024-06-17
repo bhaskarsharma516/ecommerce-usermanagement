@@ -1,12 +1,20 @@
 package com.ecommerce.usermanagement.model;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.ecommerce.usermanagement.utility.Role;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,32 +30,33 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfile  implements UserDetails{
+public class UserProfile {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private BigInteger userId;
 	private String name;
+	private String userEmail;
 	private String userPhoneNumber;
 	private String userPassword;
+	private String userPic;
+	private String userAddress;
+	private String city;
+	private String state;
+	private String pincode;
+	@Enumerated(EnumType.STRING)
+	private Role userRole;
+//	Collection<? extends GrantedAuthority> authorities;
+//	private Collection<GrantedAuthority> authorities;
+//	@Enumerated(EnumType.STRING)
+//	private Role userRole;
+//	
+//	public UserProfile(UserProfile user) {
+//		this.userPhoneNumber=user.getUserPhoneNumber();
+//		this.userPassword=user.getUserPassword();
+//		this.authorities.add(new SimpleGrantedAuthority(user.getUserRole().name()));
+//	}
 	
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return userPassword;
-	}
-	@Override
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return userPhoneNumber;
-	}
 	
-
-
 
 }
