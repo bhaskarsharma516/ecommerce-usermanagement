@@ -15,9 +15,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.ecommerce.usermanagement.dto.LoginRequest;
 import com.ecommerce.usermanagement.dto.LoginResponse;
 import com.ecommerce.usermanagement.security.JwtHelper;
+import com.ecommerce.usermanagement.service.RedisService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/auth")
+@Slf4j
 public class UserLoginController {
 	
 	
@@ -27,6 +31,9 @@ public class UserLoginController {
 	
 	@Autowired
     private JwtHelper helper;
+	
+	@Autowired
+	private RedisService redisService;
 	
 	@GetMapping("/login")
 	public String login() {
@@ -38,18 +45,28 @@ public class UserLoginController {
 
 	 @PostMapping("/loginprocess")
 	    public String login( LoginRequest request,RedirectAttributes redirect) {
+		 
+		Object redisRes= redisService.get(request.getUserPhoneNumber());
+		log.info("redis response "+redisRes);
+		if(redisRes!=null) {
+			
+		        return "index";
+		}
+		else {
 
 		 String token = this.helper.generateToken( this.doAuthenticate(request.getUserPhoneNumber(),request.getUserPassword()));
-
-	        LoginResponse response = LoginResponse.builder()
-	                .jwtToken(token)
-	                .build();
+		 log.info("token"+token);
+		 redisService.set(request.getUserPhoneNumber(), token, 30L);
+//
+//	        LoginResponse response = LoginResponse.builder()
+//	                .jwtToken(token)
+//	                .build();
 	        if(token==null) {
 	        	redirect.addFlashAttribute("error","Login Failed");
 	        	return "redirect:/auth/login";
 	        }
 	        return "index";
-
+		}
 	    }
 
 	
