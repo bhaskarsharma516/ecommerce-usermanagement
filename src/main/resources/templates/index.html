@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-	th:replace="~{base::layout(~{::section})}">
+	th:replace="~{homebase::layout(~{::section})}">
 <head>
 <meta charset="ISO-8859-1">
 <title>Insert title here</title>
 </head>
 <body>
+  <div class="container">
+  <h1>Registration and Login with Spring Boot, Spring Security,
+   Thymeleaf, Hibernate and MySQL</h1>
+  Welcome <span sec:authentication="principal.username"> User</span>
+ </div>
 	<section>
 		<!-- Start Slider  -->
 

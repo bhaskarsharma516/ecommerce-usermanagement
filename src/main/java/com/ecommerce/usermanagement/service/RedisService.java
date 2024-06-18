@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -51,5 +49,13 @@ public class RedisService {
 			log.error("Exception- ",e);
 		}
 		}
+	
+	public boolean  delete(String key) {
+		
+	var flag=redisTemplate.delete(key);
+	log.info("redis delete flag "+flag);
+	return flag;
+				}
+
 
 }

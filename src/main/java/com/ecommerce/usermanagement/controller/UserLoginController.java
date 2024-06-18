@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ecommerce.usermanagement.dto.LoginRequest;
-import com.ecommerce.usermanagement.dto.LoginResponse;
+import com.ecommerce.usermanagement.model.TokenDetails;
+import com.ecommerce.usermanagement.repo.TokenDetailRepo;
 import com.ecommerce.usermanagement.security.JwtHelper;
 import com.ecommerce.usermanagement.service.RedisService;
 
@@ -35,14 +37,16 @@ public class UserLoginController {
 	@Autowired
 	private RedisService redisService;
 	
+	@Autowired
+	private TokenDetailRepo tokenDetailRepo;
+	
+	
+	
 	@GetMapping("/login")
 	public String login() {
 		return "login";
 	}
 	
-	
-
-
 	 @PostMapping("/loginprocess")
 	    public String login( LoginRequest request,RedirectAttributes redirect) {
 		 
@@ -57,14 +61,15 @@ public class UserLoginController {
 		 String token = this.helper.generateToken( this.doAuthenticate(request.getUserPhoneNumber(),request.getUserPassword()));
 		 log.info("token"+token);
 		 redisService.set(request.getUserPhoneNumber(), token, 30L);
-//
-//	        LoginResponse response = LoginResponse.builder()
-//	                .jwtToken(token)
-//	                .build();
-	        if(token==null) {
-	        	redirect.addFlashAttribute("error","Login Failed");
-	        	return "redirect:/auth/login";
-	        }
+
+		 TokenDetails tokenDetails = TokenDetails.builder()
+	                .jwtToken(token)
+	                .userPhoneNumber(request.getUserPhoneNumber())
+	                .valid(true)
+	                .build();
+		 
+		var res= tokenDetailRepo.save(tokenDetails);
+		log.info("token details after save "+res);
 	        return "index";
 		}
 	    }
