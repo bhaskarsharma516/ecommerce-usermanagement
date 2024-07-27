@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ecommerce.usermanagement.dto.LoginRequest;
@@ -47,17 +46,25 @@ public class UserLoginController {
 		return "login";
 	}
 	
-	 @PostMapping("/loginprocess")
-	    public String login( LoginRequest request,RedirectAttributes redirect) {
+	@PostMapping("/loginprocess")
+	public String login( LoginRequest request,RedirectAttributes redirect) {	
 		 
 		Object redisRes= redisService.get(request.getUserPhoneNumber());
 		log.info("redis response "+redisRes);
-		if(redisRes!=null) {
+		var tokenRedisDetails=tokenDetailRepo.findByUserPhoneNumber(request.getUserPhoneNumber());
+		log.info("token redis detial from db "+tokenRedisDetails);
+		
+		if(redisRes==null && tokenRedisDetails!=null) {
+			tokenRedisDetails.setValid(false);
+			tokenDetailRepo.saveAndFlush(tokenRedisDetails);
+			
+		}
+		
+;		if(redisRes!=null) {
 			
 		        return "index";
 		}
-		else {
-
+	
 		 String token = this.helper.generateToken( this.doAuthenticate(request.getUserPhoneNumber(),request.getUserPassword()));
 		 log.info("token"+token);
 		 redisService.set(request.getUserPhoneNumber(), token, 30L);
@@ -70,8 +77,8 @@ public class UserLoginController {
 		 
 		var res= tokenDetailRepo.save(tokenDetails);
 		log.info("token details after save "+res);
-	        return "index";
-		}
+	    return "index";
+		
 	    }
 
 	
@@ -89,7 +96,7 @@ public class UserLoginController {
    }
 
    @ExceptionHandler(BadCredentialsException.class)
-   public String exceptionHandler(RedirectAttributes redirect) {
+    public String exceptionHandler(RedirectAttributes redirect) {
        redirect.addFlashAttribute("error","Credentials Invalid !!");
        return "redirect:/auth/login";
    }

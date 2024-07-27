@@ -1,11 +1,5 @@
 package com.ecommerce.usermanagement.model;
 
-import java.math.BigInteger;
-
-import org.hibernate.annotations.Type;
-
-import com.ecommerce.usermanagement.utility.Role;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,18 +17,18 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserImage {
+public class ProductImage {
+	@Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+	
+	private Integer pIdFk;
 
-		@Id
-	    @GeneratedValue(strategy = GenerationType.AUTO)
-	    private Long userImgId;
-		
-		private Integer userId;
+    private String picName;
 
-	    private String picName;
+    private String picType;
 
-	    private String picType;
+    @Lob
+    private byte[] imageData;
 
-	    @Lob
-	    private byte[] imageData;
 }

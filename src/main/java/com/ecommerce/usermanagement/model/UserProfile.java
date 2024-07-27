@@ -1,14 +1,6 @@
 package com.ecommerce.usermanagement.model;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Date;
 
 import com.ecommerce.usermanagement.utility.Role;
 
@@ -34,7 +26,7 @@ public class UserProfile {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private BigInteger userId;
+	private Integer id;
 	private String name;
 	private String userEmail;
 	private String userPhoneNumber;
@@ -46,6 +38,15 @@ public class UserProfile {
 	private String pincode;
 	@Enumerated(EnumType.STRING)
 	private Role userRole;
+	private Boolean isEnable;
+
+	private Boolean accountNonLocked;
+
+	private Integer failedAttempt;
+
+	private Date lockTime;
+	
+	private String resetToken;
 //	Collection<? extends GrantedAuthority> authorities;
 //	private Collection<GrantedAuthority> authorities;
 //	@Enumerated(EnumType.STRING)

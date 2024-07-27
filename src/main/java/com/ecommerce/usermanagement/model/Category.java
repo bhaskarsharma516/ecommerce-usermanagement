@@ -15,9 +15,11 @@ import lombok.NoArgsConstructor;
 public class Category {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private BigInteger categoryId;
-	private String categoryTitle;
-	private String categoryDescription;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Integer id;	
+	private String name;
 
+	private String imageName;
+
+	private Boolean isActive;
 }
